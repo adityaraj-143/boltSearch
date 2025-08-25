@@ -1,0 +1,6 @@
+name = 'fastapi'
+compatability_date = "2025-08-25"
+
+[vars]
+UPSTASH_REDIS_REST_URL = https://loyal-bear-7928.upstash.io
+UPSTASH_REDIS_REST_TOKEN = AR74AAImcDExMzIzMWYzZmNkNTE0Y2U4ODhiY2YyOGUzNzg1NzdiMnAxNzkyOA
