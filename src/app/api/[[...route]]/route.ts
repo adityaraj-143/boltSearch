@@ -1,6 +1,7 @@
-import { Redis } from '@upstash/redis';
+import { Redis } from '@upstash/redis/cloudflare';
 import { Hono } from 'hono';
 import { env } from 'hono/adapter';
+import { cors } from 'hono/cors';
 import { handle } from 'hono/vercel';
 
 export const runtime = 'edge';
@@ -12,11 +13,10 @@ type EnvConfig = {
   UPSTASH_REDIS_REST_URL: string;
 };
 
+app.use('/*', cors());
+
 app.get('/search', async (ctx) => {
   try {
-
-    console.log("abc")
-
     const { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } =
       env<EnvConfig>(ctx);
 
@@ -28,15 +28,21 @@ app.get('/search', async (ctx) => {
     });
 
     const query = ctx.req.query('q')?.toUpperCase();
+    console.log('query: ', query);
 
     if (!query)
       return ctx.json({ message: 'Invalid search query' }, { status: 400 });
 
     const response = [];
-    const rank = await redis.zrank('terms', query);
+
+    let rank = await redis.zrank('terms', query);
+    if (rank == null) {
+      rank = await redis.zrank('terms', query + '*');
+    }
 
     if (rank != null && rank != undefined) {
-      const temp = await redis.zrange<string[]>('terms', rank, rank + 200);
+      const temp = await redis.zrange<string[]>('terms', rank, rank + 50);
+      console.log('results: ', temp);
 
       for (const el of temp) {
         if (!el.startsWith(query)) break;
@@ -64,5 +70,5 @@ app.get('/search', async (ctx) => {
   }
 });
 
-export const GET = handle(app)
+export const GET = handle(app);
 export default app as never;
