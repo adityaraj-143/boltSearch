@@ -270,7 +270,7 @@ countryList.forEach((country) => {
   terms.push({ score: 0, member: term + '*' });
 
   const populateDb = async () => {
-    // @ts-ignore
+    // @ts-expect-error: redis typings mismatch
     await redis.zadd('terms', ...terms);
   };
 
