@@ -270,7 +270,7 @@ countryList.forEach((country) => {
   terms.push({ score: 0, member: term + '*' });
 
   const populateDb = async () => {
-    //@ts-expect-error
+    // @ts-ignore
     await redis.zadd('terms', ...terms);
   };
 
